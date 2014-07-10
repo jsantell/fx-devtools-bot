@@ -11,13 +11,15 @@ const REPO_OWNER = "mozilla"
 const REPO_NAME = "gecko-dev"
 const CLIENT_PATH = "browser/devtools"
 const SERVER_PATH = "toolkit/devtools"
+const STYLES_PATH = "browser/themes/shared/devtools"
+const DB_NAME = "db.txt"
 
 func GetCommits(since time.Time) ([]github.RepositoryCommit, error) {
 	client := github.NewClient(nil)
 
 	allCommits := []github.RepositoryCommit{}
 
-	for _, path := range []string{CLIENT_PATH, SERVER_PATH} {
+	for _, path := range []string{CLIENT_PATH, SERVER_PATH, STYLES_PATH} {
 		opts := &github.CommitsListOptions{SHA: BRANCH, Since: since, Path: path}
 		commits, _, err := client.Repositories.ListCommits(REPO_OWNER, REPO_NAME, opts)
 
@@ -40,5 +42,17 @@ func GetCommits(since time.Time) ([]github.RepositoryCommit, error) {
 		}
 	}
 
-	return allCommits, nil
+	return FilterCommits(DB_NAME, allCommits), nil
+}
+
+func FilterCommits(dbName string, commits []github.RepositoryCommit) []github.RepositoryCommit {
+	filtered := []github.RepositoryCommit{}
+
+	for _, commit := range commits {
+		if GetSHA(dbName, *commit.SHA) == false {
+			filtered = append(filtered, commit)
+		}
+	}
+
+	return filtered
 }

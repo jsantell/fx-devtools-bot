@@ -27,6 +27,10 @@ func AddSHA(filename string, sha string) {
 }
 
 func GetSHA(filename string, sha string) bool {
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return false
+	}
+
 	file, err := os.Open(filename)
 	if err != nil {
 		panic(err)
