@@ -32,11 +32,21 @@ func TestCleanMessage(t *testing.T) {
 			" Bug 1034668-The `getMappedSelection` method for all canvas graphs should clamp the selection bounds, r=pbrosset,someoneelse, space",
 			"The `getMappedSelection` method for all canvas graphs should clamp the selection bounds",
 		},
+		[]string{
+			`Bug 988314 - Rename Inspector tests and supporting documents. r=pbrosset
+
+			--HG--
+			rename : browser/devtools/inspector/test/browser_inspector_bug_817558_delete_node.js => browser/devtools/inspector/test/browser_inspector_delete-selected-node-01.js
+			rename : browser/devtools/inspector/test/browser_inspector_bug_848731_reset_selection_on_delete.js => browser/devtools/inspector/test/browser_inspector_delete-selected-node-02.js
+			rename : browser/devtools/inspector/test/browser_inspector_destroyselection.js => browser/devtools/inspector/test/browser_inspector_delete-selected-node-03.js
+			rename : browser/devtools/inspector/test/browser_inspector_bug_840156_destroy_after_navigation.js => browser/devtools/inspector/test/browser_inspector_destroy-after`,
+			"Rename Inspector tests and supporting documents",
+		},
 	}
 
 	for _, duple := range messages {
 		if CleanMessage(duple[0]) != duple[1] {
-			t.Error("Expected '" + duple[0] + "' to clean into '" + duple[1] + "'")
+			t.Error("Expected '" + CleanMessage(duple[0]) + "' to clean into '" + duple[1] + "'")
 		}
 	}
 }

@@ -1,8 +1,7 @@
 package main
 
-import (
-	"github.com/google/go-github/github"
-)
+import "github.com/google/go-github/github"
+
 import "regexp"
 
 // MAX_LENGTH determines how long a commit message can be after trimmed,
@@ -12,8 +11,7 @@ const MAX_LENGTH = 112
 
 // TODO probably can group these regexps together in some cases, parsing out chunks
 // of a commit message
-var bugRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[:\\-\\s]*")
-var reviewRegExp = regexp.MustCompile("(?i)\\W*[\\s]+(a|r)=[\\s\\w,]+$")
+var cleanRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+[\\s]*(.*)\\W+\\s(a|r)=")
 
 var bugNumberRegExp = regexp.MustCompile("^(?i)[\\s]*bug ([\\d]{1,9})")
 var changesetRegExp = regexp.MustCompile("^(?i)Backed out changeset")
@@ -22,9 +20,12 @@ var bumpRegExp = regexp.MustCompile("^(?i)Bumping (gaia|mani)")
 
 // Replaces bug number and reviewd comments from string.
 func CleanMessage(str string) string {
-	str = bugRegExp.ReplaceAllLiteralString(str, "")
-	str = reviewRegExp.ReplaceAllLiteralString(str, "")
-	return str
+	result := cleanRegExp.FindStringSubmatch(str)
+	if len(result) > 1 {
+		return result[1]
+	} else {
+		return ""
+	}
 }
 
 // Creates a Bugzilla URI from a commit message.
