@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -48,7 +49,10 @@ func GetCommits(since time.Time) ([]github.RepositoryCommit, error) {
 		}
 	}
 
-	return FilterCommits(DB_NAME, allCommits), nil
+	filtered := FilterCommits(DB_NAME, allCommits)
+	fmt.Println("Fetched commits:", len(filtered))
+
+	return filtered, nil
 }
 
 func FilterCommits(dbName string, commits []github.RepositoryCommit) []github.RepositoryCommit {

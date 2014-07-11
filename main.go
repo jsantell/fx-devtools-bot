@@ -1,13 +1,19 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
-const FREQUENCY = time.Minute * 30
-const RANGE = time.Hour * 300
+const FREQUENCY = time.Minute * 60
+const RANGE = time.Hour * 100
 const DB_NAME = "__db.txt"
 
 func tick() {
 	since := time.Now().Local().Add(-RANGE)
+
+	fmt.Println("Checking for commits...", time.Now().Local())
+
 	commits, err := GetCommits(since)
 	if err != nil {
 		panic(err)
@@ -17,6 +23,7 @@ func tick() {
 		if !GetSHA(DB_NAME, *commit.SHA) {
 			AddSHA(DB_NAME, *commit.SHA)
 			message := FormatMessage(commit)
+			fmt.Println("Tweeting: ", message)
 			_, err := Tweet(message)
 			if err != nil {
 				//panic(err)
