@@ -27,7 +27,7 @@ func GetCommits(since time.Time) ([]github.RepositoryCommit, error) {
 
 	for _, path := range []string{CLIENT_PATH, SERVER_PATH, STYLES_PATH} {
 		opts := &github.CommitsListOptions{SHA: BRANCH, Since: since, Path: path}
-		commits, res, err := client.Repositories.ListCommits(REPO_OWNER, REPO_NAME, opts)
+		commits, _, err := client.Repositories.ListCommits(REPO_OWNER, REPO_NAME, opts)
 
 		if err != nil {
 			return nil, err
