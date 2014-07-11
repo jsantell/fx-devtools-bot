@@ -2,17 +2,25 @@ package main
 
 import "time"
 
-var since time.Time = time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC)
-
-const FREQUENCY = time.Hour * 2
-const RANGE = time.Hour * 96
+const FREQUENCY = time.Minute * 30
+const RANGE = time.Hour * 300
+const DB_NAME = "__db.txt"
 
 func tick() {
 	since := time.Now().Local().Add(-RANGE)
 	commits, err := GetCommits(since)
-	if err == nil {
-		for _, commit := range commits {
-			Tweet(FormatMessage(commit))
+	if err != nil {
+		panic(err)
+	}
+
+	for _, commit := range commits {
+		if !GetSHA(DB_NAME, *commit.SHA) {
+			AddSHA(DB_NAME, *commit.SHA)
+			message := FormatMessage(commit)
+			_, err := Tweet(message)
+			if err != nil {
+				//panic(err)
+			}
 		}
 	}
 }
