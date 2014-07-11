@@ -1,6 +1,10 @@
 fx-devtools-bot
 ===============
 
-Bot that tweets latest commits to Firefox Dev Tools
+Tweets for [@FirefoxDevtools](https://twitter.com/firefoxdevtools) on every landed patch.
 
-Not working, learning go.
+Twitter account: [@fxdevtoolsbot](https://twitter.com/fxdevtoolsbot)
+
+## License
+
+MIT License, Copyright (c) 2014 Jordan Santell
