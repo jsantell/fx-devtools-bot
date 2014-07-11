@@ -36,7 +36,7 @@ func GetCommits(since time.Time) ([]github.RepositoryCommit, error) {
 					isDuplicate = true
 				}
 			}
-			if !isDuplicate {
+			if !isDuplicate && IsValidCommit(*commit.Commit.Message) {
 				allCommits = append(allCommits, commit)
 			}
 		}
