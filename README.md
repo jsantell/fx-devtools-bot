@@ -1,6 +1,8 @@
 fx-devtools-bot
 ===============
 
+[![Build Status](http://img.shields.io/travis/jsantell/fx-devtools-bot.svg?style=flat)](https://travis-ci.org/jsantell/fx-devtools-bot)
+
 Tweets for [@FirefoxDevtools](https://twitter.com/firefoxdevtools) on every landed patch.
 
 Twitter account: [@fxdevtoolsbot](https://twitter.com/fxdevtoolsbot)
