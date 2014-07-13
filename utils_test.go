@@ -76,8 +76,8 @@ func TestCreateMessage(t *testing.T) {
 	}
 
 	for _, duple := range messages {
-		if CreateMessage(duple[0], GetBugNumber(duple[0])) != duple[1] {
-			t.Error("Expected '" + CreateMessage(duple[0], GetBugNumber(duple[0])) + "' to equal '" + duple[1] + "'")
+		if CreateMessage(duple[0], GetBugNumber(duple[0]), "") != duple[1] {
+			t.Error("Expected '" + CreateMessage(duple[0], GetBugNumber(duple[0]), "") + "' to equal '" + duple[1] + "'")
 		}
 	}
 }
@@ -138,6 +138,33 @@ func TestGetBugzillaURL(t *testing.T) {
 	for _, duple := range messages {
 		if GetBugzillaURL(duple[0]) != duple[1] {
 			t.Error("Expected '" + duple[0] + "' to have a URL: " + duple[1])
+		}
+	}
+}
+
+func TestGetSubComponent(t *testing.T) {
+	messages := [][]string{
+		[]string{
+			"Developer Tools",
+			"",
+		},
+		[]string{
+			"Developer Tools: 3D View",
+			"Tilt",
+		},
+		[]string{
+			"Developer Tools: Inspector",
+			"Inspector",
+		},
+		[]string{
+			"Developer Tools: Web Audio Editor",
+			"Audio",
+		},
+	}
+
+	for _, duple := range messages {
+		if GetSubComponent(duple[0]) != duple[1] {
+			t.Error("Expected subcompobebt '" + duple[0] + "' to format to '" + duple[1])
 		}
 	}
 }

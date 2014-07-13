@@ -42,11 +42,11 @@ func TestBzCommit_FormatMessage(t *testing.T) {
 	messages := [][]string{
 		[]string{
 			"Bug 1034670 - The canvas graphs should draw the background separately, r=pbrosset",
-			"The canvas graphs should draw the background separately http://bugzil.la/1034670",
+			"[Profiler] The canvas graphs should draw the background separately http://bugzil.la/1034670",
 		},
 		[]string{
 			"Bug 1034670: The canvas graphs should draw the background separately and one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen, r=pbrosset",
-			"The canvas graphs should draw the background separately and one two three four five six seven eight nine ten ele... http://bugzil.la/1034670",
+			"[Profiler] The canvas graphs should draw the background separately and one two three four five six seven eight n... http://bugzil.la/1034670",
 		},
 	}
 

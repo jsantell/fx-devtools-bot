@@ -7,10 +7,11 @@ import (
 )
 
 type BzCommit struct {
-	Message   string
-	BugNumber string
-	Component string
-	SHA       string
+	Message      string
+	BugNumber    string
+	Component    string
+	SubComponent string
+	SHA          string
 }
 
 func NewBzCommit(repoCommit *github.RepositoryCommit) (*BzCommit, error) {
@@ -27,14 +28,18 @@ func NewBzCommit(repoCommit *github.RepositoryCommit) (*BzCommit, error) {
 	}
 
 	component, err := bugData.Get("component").String()
-	c.Component = component
+
+	if err == nil {
+		c.Component = component
+		c.SubComponent = GetSubComponent(component)
+	}
 
 	return c, nil
 }
 
 // Returns the tweetable message for the commit
 func (c *BzCommit) FormatMessage() string {
-	return CreateMessage(c.Message, c.BugNumber)
+	return CreateMessage(c.Message, c.BugNumber, c.SubComponent)
 }
 
 // Confirms whether or not this bug is in the Developer Tools component

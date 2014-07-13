@@ -16,12 +16,23 @@ import "regexp"
 // under 140 characters.
 const MAX_LENGTH = 112
 
+var compMap = map[string]string{
+	"3D View":                         "Tilt",
+	"Canvas Debugger":                 "Canvas",
+	"Graphic Commandline and Toolbar": "gcli",
+	"Object Inspector":                "Inspector", // Alias for brevity and clarity to end users
+	"Responsive Mode":                 "Responsive",
+	"Web Audio Editor":                "Audio",
+	"WebGL Shader Editor":             "Shader",
+}
+
 var cleanRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+[\\s]*(.*)\\W+\\s(a|r)=")
 var stripBugRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+(.*)")
 var bugNumberRegExp = regexp.MustCompile("^(?i)[\\s]*bug ([\\d]{1,9})")
 var changesetRegExp = regexp.MustCompile("^(?i)Backed out changeset")
 var mergeRegExp = regexp.MustCompile("^(?i)merge ")
 var bumpRegExp = regexp.MustCompile("^(?i)Bumping (gaia|mani)")
+var subcomponentRegExp = regexp.MustCompile("^(?i)Developer Tools: (.*)$")
 
 // Returns a boolean indicating whether or not this commit message
 // is useful, ignoring merges, backouts and automated commits.
@@ -61,7 +72,7 @@ func GetJson(url string) (*simplejson.Json, error) {
 	return simplejson.NewFromReader(res.Body)
 }
 
-func CreateMessage(message string, bugNumber string) string {
+func CreateMessage(message string, bugNumber string, subcomponent string) string {
 	url := GetBugzillaURL(bugNumber)
 	result := cleanRegExp.FindStringSubmatch(message)
 
@@ -78,6 +89,10 @@ func CreateMessage(message string, bugNumber string) string {
 	}
 
 	message = strings.Trim(message, " ")
+
+	if subcomponent != "" {
+		message = "[" + subcomponent + "]" + " " + message
+	}
 
 	if len(message) > MAX_LENGTH {
 		message = message[0:MAX_LENGTH] + "..."
@@ -112,4 +127,19 @@ func GetBugNumber(str string) string {
 	} else {
 		return ""
 	}
+}
+
+func GetSubComponent(c string) string {
+	result := subcomponentRegExp.FindStringSubmatch(c)
+
+	if len(result) > 1 {
+		mapping := compMap[result[1]]
+		if mapping != "" {
+			return mapping
+		} else {
+			return result[1]
+		}
+	}
+
+	return ""
 }
