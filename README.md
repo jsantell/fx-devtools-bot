@@ -5,9 +5,15 @@ Tweets for [@FirefoxDevtools](https://twitter.com/firefoxdevtools) on every land
 
 Twitter account: [@fxdevtoolsbot](https://twitter.com/fxdevtoolsbot)
 
-## Using 
+## Using
 
-Install dependencies:
+Fetch using `go get`
+
+```
+$ go get github.com/jsantell/fx-devtools-bot
+``
+
+Or clone this repository and install dependencies:
 
 ```
 $ go get github.com/jsantell/go-githubstream
@@ -35,6 +41,10 @@ $ go build . && ./fx-devtools-bot
 ## Extending
 
 To extend this for your own commit bot, modify `FilterCommits` to ignore commits as type `github.RepositoryCommit` that can be done on the first pass of filtering (like ignoring merge commits, etc.). Then instantiate a custom Commit object (just needs to implement `FormatMessage() string` and `IsValid() bool` for filtering that may require calling an external API, like in this case, calling Bugzilla's API to ensure it's in the Developer Tools component. You may also need to change the environment variables set mentioned in `Using`.
+
+## Testing
+
+Currently the `bz-commit_test` test queries the Bugzilla API, so be polite on running this.
 
 ## License
 
