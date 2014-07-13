@@ -1,25 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"time"
+
+	"github.com/jsantell/go-githubstream"
 )
 
-const FREQUENCY = time.Minute * 60
-const RANGE = time.Hour * 100
+const FREQUENCY = time.Hour
+const OWNER = "mozilla"
+const REPO = "gecko-dev"
+const BRANCH = "fx-team"
 const DB_NAME = "__db.txt"
 
-func tick() {
-	since := time.Now().Local().Add(-RANGE)
+var TOKEN string = os.Getenv("FX_DEVTOOLS_BOT_GITHUB_TOKEN")
 
-	fmt.Println("Checking for commits...", time.Now().Local())
-
-	commits, err := GetCommits(since)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, commit := range commits {
+/*
 		if !GetSHA(DB_NAME, *commit.SHA) {
 			AddSHA(DB_NAME, *commit.SHA)
 			message := FormatMessage(commit)
@@ -31,24 +27,14 @@ func tick() {
 		}
 	}
 }
-
+*/
 func main() {
-	ticker := time.NewTicker(FREQUENCY)
+	ghs := githubstream.NewGithubStream(FREQUENCY, OWNER, REPO, BRANCH, TOKEN)
 
-	// Every FREQUENCY, check GitHub for new commits.
-	// The range of commits we check is FREQUENCY - RANGE, as GitHub queries
-	// by commit date, not push, so in the case where a commit that's a few days old
-	// finally is pushed, it's date is a few days ago, so we have a large range to account for
-	// those cases
-	go func() {
-		tick()
-		for _ = range ticker.C {
-			tick()
-		}
-	}()
-
-	// TODO
-	// Holds open the main routine, this is shitty
-	timer := time.NewTimer(time.Hour * 10000)
-	<-timer.C
+	for commits := range ghs.Start() {
+		// Filter out already used commits from DB_NAME, and invalid commits
+		// like merges, changesets, automated commits to store on overhead of querying
+		// bugzilla
+		commits = FilterCommits(DB_NAME, commits)
+	}
 }

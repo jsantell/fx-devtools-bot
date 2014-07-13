@@ -1,6 +1,13 @@
 package main
 
-import "github.com/google/go-github/github"
+import (
+	"strings"
+
+	"github.com/google/go-github/github"
+)
+
+import "net/http"
+import "github.com/bitly/go-simplejson"
 
 import "regexp"
 
@@ -9,40 +16,68 @@ import "regexp"
 // under 140 characters.
 const MAX_LENGTH = 112
 
-// TODO probably can group these regexps together in some cases, parsing out chunks
-// of a commit message
 var cleanRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+[\\s]*(.*)\\W+\\s(a|r)=")
-
+var stripBugRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+(.*)")
 var bugNumberRegExp = regexp.MustCompile("^(?i)[\\s]*bug ([\\d]{1,9})")
 var changesetRegExp = regexp.MustCompile("^(?i)Backed out changeset")
 var mergeRegExp = regexp.MustCompile("^(?i)merge ")
 var bumpRegExp = regexp.MustCompile("^(?i)Bumping (gaia|mani)")
 
-// Replaces bug number and reviewd comments from string.
-func CleanMessage(str string) string {
-	result := cleanRegExp.FindStringSubmatch(str)
+// Returns a boolean indicating whether or not this commit message
+// is useful, ignoring merges, backouts and automated commits.
+func IsValidCommit(message string) bool {
+	return !changesetRegExp.MatchString(message) &&
+		!mergeRegExp.MatchString(message) &&
+		!bumpRegExp.MatchString(message)
+}
+
+// Takes a DB file store path and a slice of github.RepositoryCommits
+// and returns a slice of commits that are valid based off of:
+//
+// * Have not yet been tweeted
+// * Is not a changeset, merge or bump commit
+func FilterCommits(dbName string, commits []github.RepositoryCommit) []github.RepositoryCommit {
+	var filtered []github.RepositoryCommit
+
+	for _, commit := range commits {
+		if IsValidCommit(*commit.Commit.Message) &&
+			GetSHA(dbName, *commit.SHA) == false {
+
+			filtered = append(filtered, commit)
+		}
+	}
+
+	return filtered
+}
+
+func GetJson(url string) (*simplejson.Json, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	return simplejson.NewFromReader(res.Body)
+}
+
+func CreateMessage(message string, bugNumber string) string {
+	url := GetBugzillaURL(bugNumber)
+	result := cleanRegExp.FindStringSubmatch(message)
+
+	// Clean up the bug number and everything after the message, like the `r=jsantell` comments and after
 	if len(result) > 1 {
-		return result[1]
+		message = result[1]
+		// If couldn't parse, just remove the bug number and leave everything else
 	} else {
-		return ""
+		result = stripBugRegExp.FindStringSubmatch(message)
+		// If still not cleaned, who cares, let Twitter deal with it
+		if len(result) > 1 {
+			message = result[1]
+		}
 	}
-}
 
-// Creates a Bugzilla URI from a commit message.
-func CreateBugzillaURL(str string) string {
-	result := bugNumberRegExp.FindStringSubmatch(str)
-	if len(result) == 2 {
-		return "http://bugzil.la/" + result[1]
-	} else {
-		return ""
-	}
-}
-
-// Takes a commit and formats it into a digestable tweet.
-func FormatMessage(commit github.RepositoryCommit) string {
-	message := *commit.Commit.Message
-	url := CreateBugzillaURL(message)
-	message = CleanMessage(message)
+	message = strings.Trim(message, " ")
 
 	if len(message) > MAX_LENGTH {
 		message = message[0:MAX_LENGTH] + "..."
@@ -51,10 +86,30 @@ func FormatMessage(commit github.RepositoryCommit) string {
 	return message + " " + url
 }
 
-// Returns a boolean indicating whether or not this commit message
-// is useful, ignoring merges, backouts and automated commits.
-func IsValidCommit(message string) bool {
-	return !changesetRegExp.MatchString(message) &&
-		!mergeRegExp.MatchString(message) &&
-		!bumpRegExp.MatchString(message)
+func GetBugzillaURL(bugNum string) string {
+	if bugNum != "" {
+		return "http://bugzil.la/" + bugNum
+	} else {
+		return ""
+	}
+}
+
+func GetBugData(bugNum string) (*simplejson.Json, error) {
+	j, err := GetJson("https://bugzilla.mozilla.org/rest/bug/" + bugNum)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return j.Get("bugs").GetIndex(0), nil
+}
+
+// Get bug number from a commit message
+func GetBugNumber(str string) string {
+	result := bugNumberRegExp.FindStringSubmatch(str)
+	if len(result) == 2 {
+		return result[1]
+	} else {
+		return ""
+	}
 }
