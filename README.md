@@ -11,7 +11,7 @@ Fetch using `go get`
 
 ```
 $ go get github.com/jsantell/fx-devtools-bot
-``
+```
 
 Or clone this repository and install dependencies:
 
