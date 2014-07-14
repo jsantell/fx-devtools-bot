@@ -73,6 +73,13 @@ func TestCreateMessage(t *testing.T) {
 			rename : browser/devtools/inspector/test/browser_inspector_bug_840156_destroy_after_navigation.js => browser/devtools/inspector/test/browser_inspector_destroy-after`,
 			"Rename Inspector tests and supporting documents http://bugzil.la/988314",
 		},
+		[]string{
+			`Bug 1033387 - Update JSBeautify and move it into toolkit r=fitzgen
+
+			--HG--
+			rename : browser/devtools/shared/Jsbeautify.jsm => toolkit/devtools/jsbeautify/beautify.js`,
+			"Update JSBeautify and move it into toolkit http://bugzil.la/1033387",
+		},
 	}
 
 	for _, duple := range messages {
