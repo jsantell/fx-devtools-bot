@@ -26,7 +26,7 @@ var compMap = map[string]string{
 	"WebGL Shader Editor":             "Shader",
 }
 
-var cleanRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+[\\s]*(.*\\w)\\W*\\s(a|r)=")
+var cleanRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+[\\s]*(.*\\w)\\W*\\s*(a|r)=")
 var stripBugRegExp = regexp.MustCompile("(?i)[\\s]*bug [\\d]{4,9}[\\s]*[\\:\\-]+(.*)")
 var bugNumberRegExp = regexp.MustCompile("^(?i)[\\s]*bug ([\\d]{1,9})")
 var changesetRegExp = regexp.MustCompile("^(?i)Backed out changeset")

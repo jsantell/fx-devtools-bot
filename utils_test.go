@@ -80,6 +80,10 @@ func TestCreateMessage(t *testing.T) {
 			rename : browser/devtools/shared/Jsbeautify.jsm => toolkit/devtools/jsbeautify/beautify.js`,
 			"Update JSBeautify and move it into toolkit http://bugzil.la/1033387",
 		},
+		[]string{
+			"Bug 1038651 - Prevent inspector from breaking when reloading an SVG file;r=mratcliffe",
+			"Prevent inspector from breaking when reloading an SVG file http://bugzil.la/1038651",
+		},
 	}
 
 	for _, duple := range messages {
